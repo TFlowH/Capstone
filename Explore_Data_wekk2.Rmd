@@ -1,0 +1,112 @@
+---
+title: "Explore Data Capstone"
+author: "TFH"
+date: "19 4 2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## 1. Introduction
+
+This text contains a __project description__, __exploratory analysis__ and first derivation from the exploratory analysis.
+The aim of the project is to make suggestions for the next word based on the currently written text. For this we first describe the three data sources, using _blogs_, _news_ and _twitter_.  At the end we try further conclusions for the continuation of the project.
+
+
+
+## 2. Exploratory Analysis
+
+We start with simple descriptions of the data
+
+##### 2.1 Basic
+
+```{r, echo= FALSE, warning= FALSE}
+setwd("/Users/florianhahn/Desktop/Allgemeine_UEbersicht/99_Training/04_Coursera/01_Data_Science_R_JH/10_Capstone")
+blogs_raw <- readLines("02_Data/en_US.blogs.txt", encoding="UTF-8")
+news <- file("02_Data/en_US.news.txt" ,open="rb")
+news_raw <- readLines(news,encoding="UTF-8")
+close(news)
+rm(news)
+twitter_raw <- readLines("02_Data/en_US.twitter.txt",encoding="UTF-8")
+
+print(paste0("For the blogs, we have ",length(blogs_raw)," observations."))
+print(paste0("For the news, we have ",length(news_raw)," observations."))
+print(paste0("For the twitter, we have ",length(twitter_raw)," observations."))
+```
+
+But more interesting is the number of words per observation.
+We have this printed out in the form of histograms.
+```{r, echo= FALSE, warning= FALSE}
+library(ggplot2)
+library(stringi)
+library(gridExtra)
+words_blogs   <- stri_count_words(blogs_raw)
+words_blogs <- as.data.frame(words_blogs)
+dummy = rep(0, length(words_blogs$words_blogs))
+words_blogs <- data.frame(words_blogs, dummy)
+
+words_news   <- stri_count_words(news_raw)
+words_news <- as.data.frame(words_news)
+dummy = rep(0, length(words_news$words_news))
+words_news <- data.frame(words_news, dummy)
+
+words_twitter   <- stri_count_words(twitter_raw)
+words_twitter <- as.data.frame(words_twitter)
+dummy = rep(0, length(words_twitter$words_twitter))
+words_twitter <- data.frame(words_twitter, dummy)
+
+Plot1 <- qplot(words_blogs$words_blogs, geom = "histogram", binwidth = 5, xlim=c(0,150), main = "Blogs",xlab = "Words")
+Plot2 <- qplot(words_news$words_news, geom = "histogram", binwidth = 5, xlim=c(0,150), main = "News",xlab = "Words")
+Plot3 <- qplot(words_twitter$words_twitter, geom = "histogram", binwidth = 5, xlim=c(0,150), main = "Twitter", xlab = "Words")
+
+grid.arrange(Plot1, Plot2, Plot3, nrow = 1)
+
+print("In the histoframs we drectly see, twitter has less words than news and blogs. When we look at the mean, we get the following values.")
+print(paste0("For the blogs, the mean of words is ",mean(words_blogs$words_blogs)))
+print(paste0("For the news, the mean of words is ",mean(words_news$words_news)))
+print(paste0("For the twitter, the mean of words is ",mean(words_twitter$words_twitter)))
+print("We see, blogs has the most words in the mean, than news and at least blogs, but we can see in the histogram, that news has more the same length of word, so lets see at the meadian:")
+
+print(paste0("For the blogs, the median of words is ",median(words_blogs$words_blogs)))
+print(paste0("For the news, the median of words is ",median(words_news$words_news)))
+print(paste0("For the twitter, the median of words is ",median(words_twitter$words_twitter)))
+
+print("We see, in meadian news has more words, also at the histogram we see, News has a peak, not at the beginning.")
+
+print(paste0("For the blogs, the standard derivtion of words is ",sd(words_blogs$words_blogs)))
+print(paste0("For the news, the standard derivtion is ",sd(words_news$words_news)))
+print(paste0("For the twitter, the standard derivtion is ",sd(words_twitter$words_twitter)))
+
+print("We also see, that news has a lower standard derivation than blogs.")
+
+```
+
+One thing more, I woulk like to test is, the length of the words per group.
+Their for we calculate the number of characters and divide them with the count of words. After it we cann see, how long the words in average are,, per oberservation per group.
+
+```{r, echo= FALSE, warning= FALSE}
+length_word_blogs <- nchar(blogs_raw)/words_blogs$words_blogs
+length_word_news <- nchar(news_raw)/words_news$words_news
+length_word_twitter <- nchar(twitter_raw)/words_twitter$words_twitter
+par(mfrow=c(1,3))
+length_word_blogs <- length_word_blogs[length_word_blogs < 10]
+ boxplot(length_word_blogs, horizontal = FALSE,  main = "blogs", xlab = "")
+
+length_word_news <- length_word_news[length_word_news < 10]
+ boxplot(length_word_news, horizontal = FALSE,  main = "news", xlab = "")
+
+length_word_twitter <- length_word_twitter[length_word_twitter < 10]
+ boxplot(length_word_twitter, horizontal = FALSE,  main = "Twitter", xlab = "")
+
+```
+
+We see, inside the length of words is not a high different.
+
+
+## 2. Summary
+
+We saw, that their is a hugh different betweens the numbers of word per oberservations betweens the groups, but the words has a similar count of characters per word, neverless I would like to train three models for the prediction of the next word, because their ae different leanguage styles inside the textes.
+
+
